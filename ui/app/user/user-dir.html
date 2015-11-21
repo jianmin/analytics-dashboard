@@ -9,15 +9,11 @@
     <div class="form-group">
       <input type="password" placeholder="Password" class="form-control" ng-model="password">
     </div>
-    <button type="submit" class="btn btn-success">Sign in</button>
+    <button type="submit" class="btn btn-default">Sign in</button>
   </form>
   <!-- display the logged in user -->
   <div class="welcome" ng-show="user.authenticated">
-    <div class="navbar-collapse collapse">
-      <span class="glyphicon glyphicon-user"></span> {{user.name}} | <span class="profile-link"><a href="/profile">Account</a></span>
-
-      <button class="btn btn-default btn-xs" type="button" ng-click="logout()">Logout</button>
-
-    </div><!--/.navbar-collapse -->
+    <span class="glyphicon glyphicon-user"></span> {{user.name}} | <span class="profile-link"><a href="/profile">Account</a></span>
+    <button class="btn btn-default btn-xs" type="button" ng-click="logout()">Logout</button>
   </div>
 </div>
