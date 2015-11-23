@@ -268,12 +268,12 @@
       }
     ]);
 
-  function toFilters(query, fieldMap){
+  function toFilters(query, fieldMap) {
     var filters = query.map(parseQueryGroup.bind(query, fieldMap));
     return filters;
   }
 
-  function toQuery(filters, fieldMap){
+  function toQuery(filters, fieldMap) {
     var query = filters.map(parseFilterGroup.bind(filters, fieldMap)).filter(function(item) {
       return !! item;
     });
@@ -320,10 +320,16 @@
         obj.value = query.text;
         break;
       case 'range-query':
-        obj.field = getConstraintName(query);
-        obj.subType = query['range-operator'];
-        obj.operator = obj.subType;
-        obj.value = query.value;
+        if (query['path-index']) {
+          obj.field = getConstraintName(query);
+          obj.subType = 'value-query';
+          obj.value = query.value;
+        } else {
+          obj.field = getConstraintName(query);
+          obj.subType = query['range-operator'];
+          obj.operator = obj.subType;
+          obj.value = query.value;
+        }
         break;
       default:
         throw new Error('unexpected query');
@@ -361,20 +367,33 @@
     switch (fieldData.type) {
       case 'string':
         // A query for a string field is translated 
-        // to value-query or word-query.
+        // to value-query or word-query or range-query.
 
-        // Set the default subType for newly created query
-        if (!group.subType) {
-          group.subType = 'value-query';
+        if (fieldData.classification === 'path-expression') {
+          var dataType = 'xs:' + fieldData.type;
+          obj['range-query'] = {
+            'path-index': {
+              'text': fieldName,
+              'namespaces': {}
+            },
+            'type': dataType,
+            'range-operator': 'EQ',
+            'value': group.value
+          };
+        } else {
+          // Set the default subType for newly created query
+          if (!group.subType) {
+            group.subType = 'value-query';
+          }
+
+          var value = {
+            'text': group.value
+          };
+
+          setConstraint(value, fieldName, fieldData);
+
+          obj[group.subType] = value;
         }
-
-        var value = {
-          'text': group.value
-        };
-
-        setConstraint(value, fieldName, fieldData);
-
-        obj[group.subType] = value;
 
         break;
       case 'int':
@@ -438,10 +457,14 @@
   function getConstraintName(query) {
     if (query['json-property']) {
       return query['json-property'];
-     } else if (query['element']) {
+    } else if (query['attribute']) {
+      return query['attribute']['name'];
+    } else if (query['element']) {
       return query['element']['name'];
     } else if (query['field']) {
       return query['field']['name'];
+    } else if (query['path-index']) {
+      return query['path-index']['text']; 
     }
   }
 
@@ -453,11 +476,17 @@
 
     if (claz === 'json-property') {
       value[claz] = fieldName;
-     } else if (claz === 'element') {
+     } else if (claz === 'element' || claz === 'attribute') {
       value[claz] = {
         name: fieldName,
         ns: fieldData.ns
       };
+      if (claz === 'attribute') {
+        value['element'] = {
+          name: fieldData['parent-localname'],
+          ns: fieldData['parent-namespace-uri']
+        };
+      }
     } else if (claz === 'field') {
       value[claz] = {
         name: fieldName,

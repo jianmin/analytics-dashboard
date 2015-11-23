@@ -269,34 +269,36 @@ angular.module('ml.report').directive('mlSmartGrid', ['$compile', 'MLRest', 'mlR
               var indexes = docs[key];
 
               indexes.forEach(function(index) {
-                // Set classification
-                var classification = 'element';
+                var field = {
+                  type: index['scalar-type']
+                };
+                field['ref-type'] = index['ref-type'];
 
-                if (index['localname']) {
-                  classification = 'element';
-                } else if (index['path-expression']) {
-                  classification = 'path-expression';
-                } else {
-                  // TO DO
+                var ns = index['namespace-uri'];
+                if (ns || ns === '') {
+                  field.ns = ns;
                 }
 
-                var field = {
-                  type: index['scalar-type'],
-                  classification: classification,
-                  ns: index['namespace-uri']
-                };
                 var collation = index['collation'];
-
                 if (collation) {
                   field.collation = collation;
                 }
 
                 if (index['localname']) {
+                  if (index['parent-localname']) {
+                    // attribute range index
+                    field.classification = 'attribute';
+                    field['parent-localname'] = index['parent-localname'];
+                    field['parent-namespace-uri'] = index['parent-namespace-uri'];
+                  } else {
+                    // element range index
+                    field.classification = 'element';
+                  }
                   doc.fields[index['localname']] = field;
                 } else if (index['path-expression']) {
+                  // path range index
+                  field.classification = 'path-expression';
                   doc.fields[index['path-expression']] = field;
-                } else {
-                  // TO DO
                 }
               });
 
@@ -636,7 +638,7 @@ angular.module('ml.report').directive('mlSmartGrid', ['$compile', 'MLRest', 'mlR
         $scope.tableParams = new NgTableParams(initialParams, {
           total: total,
           getData: function($defer, params) {
-            console.log(params);
+            //console.log(params);
             var orderedData = params.sorting() ? 
                 $filter('orderBy')(records, $scope.tableParams.orderBy()) : records;
 
