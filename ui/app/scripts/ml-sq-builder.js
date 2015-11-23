@@ -370,6 +370,7 @@
         // to value-query or word-query or range-query.
 
         if (fieldData.classification === 'path-expression') {
+          // Convert path rule to range-query
           var dataType = 'xs:' + fieldData.type;
           obj['range-query'] = {
             'path-index': {
@@ -381,6 +382,7 @@
             'value': group.value
           };
         } else {
+          // Convert element or attribute rule to value-query/word-query
           // Set the default subType for newly created query
           if (!group.subType) {
             group.subType = 'value-query';
@@ -417,6 +419,13 @@
         };
 
         setConstraint(value, fieldName, fieldData);
+
+        if (fieldData.classification === 'path-expression') {
+          value['path-index'] = {
+            text: fieldName,
+            namespaces: {}
+          };
+        }
 
         obj['range-query'] = value;
 
@@ -476,7 +485,7 @@
 
     if (claz === 'json-property') {
       value[claz] = fieldName;
-     } else if (claz === 'element' || claz === 'attribute') {
+    } else if (claz === 'element' || claz === 'attribute') {
       value[claz] = {
         name: fieldName,
         ns: fieldData.ns
