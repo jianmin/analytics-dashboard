@@ -362,7 +362,7 @@ th.centered, td.centered {
   padding: 8px;
   text-decoration: none;
   color: #cdcdcd;
-  z-index: 10000;
+  /*z-index: 10000;*/
   text-align: left;
 
   -moz-border-radius: 4px;
@@ -378,6 +378,8 @@ th.centered, td.centered {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+
+  position: relative;
 }
 
 .report-item span, .report-item span {
@@ -406,6 +408,35 @@ th.centered, td.centered {
 
 .report-item:hover i, .report-item:hover span {
   color: #f9edbe;
+}
+
+.report-item .toolbar {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  border: 1px solid #gray;
+  margin-bottom: 0px;
+  padding: 1px 4px;
+  /*background-color: blue;*/
+
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.report-item .toolbar a {
+  padding: 0;
+  margin: 0;
+}
+
+.report-item .toolbar i {
+  font-size: 12px;
+  color: yellow;
+}
+
+.report-item:hover .toolbar {
+  display: inline-block;
 }
 
 /* make div width and height auto adjust to content.

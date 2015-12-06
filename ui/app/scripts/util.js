@@ -150,6 +150,8 @@ var MarkLogic;
   var Util = MarkLogic.Util;
 })(MarkLogic || (MarkLogic = {}));
 
+var embedding_dashboard = false;
+
 var CONTAINER_BORDER = 8;
 var LC_INITIAL_WIDTH = 250;
 var SPLITTER_WIDTH   = 5;
@@ -163,8 +165,18 @@ function resizeViewPort() {
     var height = win.height();
     var width = win.width();
 
+    var mainContainerHeight = height-50-60;
+    var workspaceContainerHeight = height-119;
+    var sidebarHeight = height-198;
+
+    if (embedding_dashboard) {
+        mainContainerHeight += 60;
+        workspaceContainerHeight += 60;
+        sidebarHeight += 60;
+    }
+
     // 50 is the height of the top nav bar
-    jQuery("#main-container").css("height", height-50-60);
+    jQuery("#main-container").css("height", mainContainerHeight);
 
     jQuery(".left-column").css({
         width: LC_INITIAL_WIDTH
@@ -181,11 +193,11 @@ function resizeViewPort() {
     });
 
     // Resize the right-side container
-    jQuery("#workspace-container").css("height", height-119);
+    jQuery("#workspace-container").css("height", workspaceContainerHeight);
 
     // Resize the left-side container
-    jQuery("#sidebar-container").css("height", height-119); //120
-    jQuery("#sidebar").css("height", height-240-42);
+    jQuery("#sidebar-container").css("height", workspaceContainerHeight);
+    jQuery("#sidebar").css("height", sidebarHeight);
 }
 
 function setupWizard() {

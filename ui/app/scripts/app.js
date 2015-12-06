@@ -53,7 +53,7 @@ angular.module('app', [
         templateUrl: 'views/reports.html',
         controller: 'ReportsCtrl'
       })
-      .when('/report', {
+      .when('/newreport', {
         templateUrl: 'views/new-report.html',
         controller: 'ReportCtrl'
       })
